@@ -15,12 +15,9 @@ export const useFreelancerJobsStore = defineStore("freelancerJobs", () => {
   const totalAvailableJobsCount = ref<number>(0);
   const totalMyApplicationsCount = ref<number>(0);
   const dashboardMetrics = ref();
-<<<<<<< HEAD
-=======
   const appliedJobs = ref<IFreelancerJobListing[]>([]);
   const totalAppliedJobsCount = ref<number>(0);
 
->>>>>>> 738fcd1bf4dceb4cdb094aed3ef2838fb695f1ba
 
   // Getters
   const hasAvailableJobs = computed(() => availableJobs.value.length > 0);

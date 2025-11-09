@@ -1,7 +1,7 @@
 <template>
   <v-footer app>
     <v-container fluid>
-      <v-row class="mt-10 py-10">
+      <v-row class="mt-0 py-1">
         <!-- logo and socials -->
         <v-col cols="12" md="3">
           <v-img src="/logo.png" height="100" width="100" />
@@ -84,7 +84,7 @@
       </v-row>
 
       <v-row>
-        <v-divider class="mt-15" />
+        <v-divider class="mt-0" />
         <div class="d-flex justify-space-between w-100 mt-3">
           <p class="text-subtitle-1">
             Copyright &copy; {{ new Date().getFullYear() }} Nilltech Solutions
@@ -120,3 +120,10 @@ const jobsPageLink = computed(() => {
   return "/auth/login";
 });
 </script>
+<style scoped>
+.v-footer {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+</style>

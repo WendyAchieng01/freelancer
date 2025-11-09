@@ -17,10 +17,11 @@
           <AppFooter />
         </v-layout>
       </v-responsive>
+       <CookieConsent />
     </v-app>
   </v-container>
 </template>
-
 <script setup lang="ts">
 const { xlAndUp } = useDisplay();
+import CookieConsent from '@/components/app/CookieConsent.vue'
 </script>
