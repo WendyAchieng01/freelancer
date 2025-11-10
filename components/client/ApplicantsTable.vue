@@ -25,41 +25,42 @@
       />
     </template>
 
-    <template #item.actions="{ item }">
-      <div class="d-flex ga-2 align-center">
-        <v-menu>
-          <template #activator="{ props: menuProps }">
-            <v-icon v-bind="menuProps" icon="mdi-dots-vertical" />
-          </template>
+   <template #item.actions="{ item }">
+  <div class="d-flex ga-2 align-center">
+    <v-menu>
+      <template #activator="{ props: menuProps }">
+        <v-icon v-bind="menuProps" icon="mdi-dots-vertical" />
+      </template>
 
-          <v-list class="pa-2">
-            <v-list-item
-              title="Applicant Info"
-              prepend-icon="mdi-account-outline"
-              @click="
-                selectedItem = item;
-                profileInfoDialog = true;
-              "
-            />
-            <v-list-item
-              title="Hire Candidate"
-              prepend-icon="mdi-content-save-outline"
-              :disabled="item.status === 'accepted'"
-              @click="
-                selectedItem = item;
-                hireCandidateDialog = true;
-              "
-            />
-            <v-list-item
-              title="Send Message"
-              :disabled="!item.payment_verified"
-              prepend-icon="mdi-message-reply-text-outline"
-              :to="`/client/chat/?freelancer=${item?.user?.username}`"
-            />
-          </v-list>
-        </v-menu>
-      </div>
-    </template>
+      <v-list class="pa-2">
+        <v-list-item
+          title="Applicant Info"
+          prepend-icon="mdi-account-outline"
+          @click="
+            selectedItem = item;
+            profileInfoDialog = true;
+          "
+        />
+        <!-- Hide instead of disable -->
+        <v-list-item
+          v-if="item.status !== 'accepted'"
+          title="Hire Candidate"
+          prepend-icon="mdi-content-save-outline"
+          @click="
+            selectedItem = item;
+            hireCandidateDialog = true;
+          "
+        />
+        <v-list-item
+          title="Send Message"
+          :disabled="!item.payment_verified"
+          prepend-icon="mdi-message-reply-text-outline"
+          :to="`/client/chat/?freelancer=${item?.user?.username}`"
+        />
+      </v-list>
+    </v-menu>
+  </div>
+</template>
   </v-data-table>
 
   <!-- profile info dialog -->
@@ -211,7 +212,10 @@ const postUnsuccesfulModal = ref(false);
 const clientJobStore = useClientJobsStore();
 const appStore = useAppStore();
 const route = useRoute();
+
 async function hireCandidate() {
+  if (!selectedItem.value) return; 
+
   // if payment is not verified show no funds modal
   if (!selectedItem.value.payment_verified) {
     hireCandidateDialog.value = false;
@@ -219,28 +223,29 @@ async function hireCandidate() {
     return;
   }
 
-  if (selectedItem.value)
-    await clientJobStore
-      .acceptApplication(
-        route.params.id as string,
-        selectedItem.value.user.username
-      )
-      .then(() => {
-        // mark candidate as hired
-        const hiredCandidateIndex = clientJobStore.applications.findIndex(
-          (candidate) =>
-            candidate.user.username === selectedItem.value?.user.username
-        );
-        if (hiredCandidateIndex !== -1)
-          clientJobStore.applications[hiredCandidateIndex].status = "accepted";
-        hireCandidateDialog.value = false;
-        if (profileInfoDialog.value) profileInfoDialog.value = false;
-        appStore.showSnackBar({
-          type: "success",
-          message: "Applicant hired succesfully",
-        });
+  await clientJobStore
+    .acceptApplication(
+      route.params.id as string,
+      selectedItem.value.user.username
+    )
+    .then(() => {
+      const hiredCandidateIndex = clientJobStore.applications.findIndex(
+        (candidate) =>
+          candidate.user.username === selectedItem.value?.user.username
+      );
+      if (hiredCandidateIndex !== -1) {
+        clientJobStore.applications[hiredCandidateIndex].status = "accepted";
+      }
+
+      hireCandidateDialog.value = false;
+      if (profileInfoDialog.value) profileInfoDialog.value = false;
+      appStore.showSnackBar({
+        type: "success",
+        message: "Applicant hired successfully",
       });
+    });
 }
+
 </script>
 
 <style scoped>

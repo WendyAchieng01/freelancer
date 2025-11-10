@@ -1,11 +1,12 @@
 <template>
   <v-row class="chat">
+    <!-- chat list -->
     <v-col cols="12" md="4">
       <div class="border">
         <div class="d-flex justify-space-between px-4">
           <p class="text-subtitle-1 mt-3 font-weight-medium">Messages</p>
-          <!-- <v-btn icon="mdi-pencil-outline" variant="text" /> -->
         </div>
+
         <v-text-field
           label="Search"
           prepend-inner-icon="mdi-magnify"
@@ -15,7 +16,6 @@
           flat
         />
 
-        <!-- chat items -->
         <div class="d-flex">
           <v-virtual-scroll
             :items="chatStore.chats"
@@ -56,25 +56,16 @@
                   </v-badge>
                 </template>
                 <template #append>
-                  <div class="d-flex flex-column ga-1">
-                    <p v-if="chat.messages?.length" class="text-caption">
-                      {{ getLatestMessageTime(chat) }}
-                    </p>
-                    <v-icon
-                      v-if="false"
-                      icon="mdi-circle-medium"
-                      size="20"
-                      color="primary"
-                      class="justify-end w-100"
-                    />
-                  </div>
+                  <p v-if="chat.messages?.length" class="text-caption">
+                    {{ getLatestMessageTime(chat) }}
+                  </p>
                 </template>
               </v-list-item>
             </template>
           </v-virtual-scroll>
         </div>
 
-         <v-pagination
+        <v-pagination
           v-model="page"
           :length="Math.ceil(chatStore.totalChatsCount / 10)"
           color="primary"
@@ -84,7 +75,7 @@
 
     <!-- active chat -->
     <v-col cols="12" md="8">
-      <div v-if="selectedChat" class="border h-100">
+      <div v-if="selectedChat" class="border h-100 d-flex flex-column">
         <!-- chat header -->
         <div class="d-flex">
           <v-list-item class="my-2 py-2">
@@ -118,60 +109,57 @@
         <v-divider />
 
         <!-- messages -->
-
         <v-infinite-scroll
           :items="selectedChat.messages"
           side="start"
           mode="manual"
           :height="$vuetify.display.xlAndUp ? 650 : 350"
+          class="flex-grow-1 overflow-y-auto px-3"
         >
           <template #load-more>
             <div />
           </template>
+
           <template v-for="message in selectedChat.messages" :key="message.id">
             <div
-              class="d-flex align-end pa-1"
-              :class="{
-                'justify-end': message.sender === selectedChat.client,
-              }"
+              class="d-flex mb-2"
+              :class="{ 'justify-end': message.sender === selectedChat.client }"
             >
-              <v-card
-                flat
-                class="mt-1 w-75"
-                :prepend-avatar="profileImage(selectedChat.freelancer, '')"
-                :variant="
-                  message.sender === selectedChat.client ? 'tonal' : 'flat'
-                "
-                :color="message.sender === selectedChat.client ? '' : 'primary'"
-                :text="message.content"
+              <div
+                class="pa-2 px-3"
+                :class="[
+                  message.sender === selectedChat.client
+                    ? 'bg-primary text-white rounded-xl rounded-be'
+                    : 'bg-grey-lighten-3 text-black rounded-xl rounded-bs',
+                ]"
+                style="max-width: 70%; word-wrap: break-word; line-height: 1.3;"
               >
-                <template #prepend>
-                  <v-avatar
-                    v-if="message.sender === selectedChat.client"
-                    :image="profileImage(selectedChat.client, '')"
-                    size="x-small"
-                  />
-                </template>
+                <div>{{ message.content }}</div>
 
-                <template v-if="message.attachments?.length" #actions>
-                  <!-- File in chat start -->
+                <!-- Attachments -->
+                <div v-if="message.attachments?.length" class="mt-1">
                   <v-chip
                     v-for="attachment in message.attachments"
                     :key="attachment.id"
-                    class="mt-2 rounded"
+                    class="mt-1 rounded"
                     size="small"
                     link
                     :href="attachment.file_url"
                     target="_blank"
                   >
-                    <div class="d-flex">
-                      <v-icon icon="mdi-attachment" />
-                      <span class="ml-2 text-truncate">{{ attachment.filename }}</span>
-                    </div>
+                    <v-icon icon="mdi-attachment" class="mr-1" />
+                    {{ attachment.filename }}
                   </v-chip>
-                  <!-- File in chat end -->
-                </template>
-              </v-card>
+                </div>
+
+                <!-- timestamp -->
+                <div
+                  class="text-caption text-grey-lighten-1 mt-1"
+                  style="font-size: 10px; text-align: right;"
+                >
+                  {{ moment(message.timestamp).format('LT') }}
+                </div>
+              </div>
             </div>
           </template>
         </v-infinite-scroll>
@@ -214,6 +202,7 @@
               </div>
             </v-chip>
           </div>
+
           <v-file-input
             ref="fileInput"
             v-model="form.attachments"
@@ -222,6 +211,7 @@
           />
         </div>
       </div>
+
       <!-- no chat selected -->
       <div v-else class="border h-100 d-flex align-center justify-center">
         <v-empty-state
@@ -249,13 +239,14 @@ const chatStore = useMessagesStore();
 const page = ref(1);
 const route = useRoute();
 const freelancerUsername = route.query?.freelancer;
+
 onMounted(async () => {
   await chatStore.fetchChats({ page: page.value }).then((chats) => {
     if (freelancerUsername) {
       const freelancerChat = chats.find((chat) => chat.freelancer == freelancerUsername);
       if (freelancerChat) selectedChatSlug.value = freelancerChat.slug;
     }
-  })
+  });
 });
 
 watch(page, async () => await chatStore.fetchChats({ page: page.value }));
@@ -265,12 +256,11 @@ const selectedChat = computed(() => {
   const selectedChatIndex = chatStore.chats.findIndex(
     (chat) => chat.slug === selectedChatSlug.value
   );
-  if (selectedChatIndex !== -1) return chatStore.chats[selectedChatIndex];
-  else return null;
+  return selectedChatIndex !== -1 ? chatStore.chats[selectedChatIndex] : null;
 });
+
 function selectChat(slug: string) {
   selectedChatSlug.value = slug;
-  // chatStore.fetchMessages(chat.slug);
 }
 
 // send message
@@ -290,12 +280,9 @@ function removeAttachedFile(index: number) {
 
 async function sendMessage() {
   if (!isDirty.value) return;
-
   clearErrors();
   try {
-    if (!selectedChat.value) {
-      throw new Error("No chat selected");
-    }
+    if (!selectedChat.value) throw new Error("No chat selected");
     await chatStore.sendMessage(
       selectedChat.value?.chat_uuid,
       toFormData(form as Record<string, any>)
@@ -309,8 +296,7 @@ async function sendMessage() {
 
 function getLatestMessageTime(chat: IChat) {
   const latestMessage = getLatestMessage(chat);
-  if (latestMessage) return moment(latestMessage.timestamp).fromNow();
-  else return null;
+  return latestMessage ? moment(latestMessage.timestamp).fromNow() : null;
 }
 
 function getLatestMessage(chat: IChat) {
@@ -319,7 +305,7 @@ function getLatestMessage(chat: IChat) {
 </script>
 
 <style scoped>
-/* .chat {
-  height: 85vh;
-} */
+.bg-grey-lighten-3 {
+  background-color: #f1f1f1 !important;
+}
 </style>
