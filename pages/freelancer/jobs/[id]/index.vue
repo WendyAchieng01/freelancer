@@ -215,11 +215,12 @@
           </p>
           <!-- <p class="text-medium-emphasis text-subtitle-1 mt-4">
             Total Jobs Posted: 28
-          </p> -->
+          </p> 
           <p class="text-medium-emphasis text-subtitle-1 mt-4">
-            Total Money Spent:
+            Total Money Spent :
             {{ formatAmount(currentJob.client.total_amount_paid) }}
           </p>
+          -->
           <p class="text-medium-emphasis text-subtitle-1 mt-4">
             Total Hires: {{ currentJob.client.total_freelancers_hired }}
           </p>
