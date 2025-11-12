@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
+      
+        NUXT_PUBLIC_API_BASE_URL: ${NUXT_PUBLIC_API_BASE_URL}
         NUXT_GOOGLE_CLIENT_ID: ${NUXT_GOOGLE_CLIENT_ID}
         NUXT_SESSION_PASSWORD: ${NUXT_SESSION_PASSWORD}
         NUXT_PUBLIC_MEDIA_BASE_URL: ${NUXT_PUBLIC_MEDIA_BASE_URL}
@@ -14,17 +16,3 @@ services:
       PORT: 3000
     ports:
       - "3000:3000"
-
-profiles:
-  local:
-    services:
-      nuxt:
-        build:
-          args:
-            NUXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8000
-  production:
-    services:
-      nuxt:
-        build:
-          args:
-            NUXT_PUBLIC_API_BASE_URL: https://freelance-w8gc.onrender.com
