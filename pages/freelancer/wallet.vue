@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- Header -->
     <div class="d-flex justify-space-between">
       <div>
         <p class="text-h5">Overview Of Your Wallet</p>
@@ -25,22 +26,25 @@
 
     <v-divider class="my-4" />
 
+    <!-- MPESA Info Card -->
     <v-card class="py-2" flat variant="tonal">
       <template #text>
         <p class="text-center text-h6">
           MPESA Number:
           {{
             !!profileStore.profile?.profile?.phone
-            ? profileStore.profile?.profile.phone
-            : "Not Set"
+              ? profileStore.profile?.profile.phone
+              : "Not Set"
           }}
         </p>
       </template>
     </v-card>
 
-    <!-- table actions -->
+    <!-- Table Actions -->
     <div class="d-flex flex-column flex-sm-row justify-space-between mt-10">
-      <!-- <v-date-input
+      <!-- Optional filters/actions (commented for now) -->
+      <!--
+      <v-date-input
         v-model="dateRange"
         label="Select range"
         max-width="368"
@@ -49,10 +53,10 @@
         density="comfortable"
         prepend-icon=""
         append-inner-icon="mdi-calendar-month-outline"
-      /> -->
+      />
 
       <div class="d-flex ga-2">
-        <!-- <v-btn
+        <v-btn
           text="Export CSV"
           append-icon="mdi-file-delimited-outline"
           variant="text"
@@ -65,12 +69,13 @@
           variant="text"
           color="grey"
           class="border"
-        /> -->
+        />
       </div>
+      -->
     </div>
 
-    <!-- payment stats -->
-    <!-- <div class="d-flex flex-column flex-sm-row ga-2 w-sm-33 mb-3">
+    <!-- Payment Stats (optional, kept for later use)
+    <div class="d-flex flex-column flex-sm-row ga-2 w-sm-33 mb-3">
       <v-card class="py-2 w-100">
         <template #title>
           <p class="text-subtitle-1">Pending Payout</p>
@@ -87,10 +92,15 @@
           <p class="text-h5 font-weight-medium">KES 0.00</p>
         </template>
       </v-card>
-    </div> -->
+    </div>
+    -->
 
-    <!-- transactions table -->
-    <FreelancerTransactionTable v-model:page="page" :transactions="walletStore.transactions" :count="walletStore.totalTransactionsCount" />
+    <!-- Transactions Table -->
+    <FreelancerTransactionTable
+      v-model:page="page"
+      :transactions="walletStore.transactions"
+      :count="walletStore.totalTransactionsCount"
+    />
   </div>
 </template>
 
@@ -106,13 +116,14 @@ definePageMeta({
 
 const dateRange = shallowRef(moment().format("YYYY-MM-DD"));
 const page = ref(1);
-
 const walletStore = useFreelancerWalletStore();
 const profileStore = useFreelancerProfileStore();
+
 async function getInvoices() {
-  await walletStore.fetchTransactions({ page: page.value});
+  await walletStore.fetchTransactions({ page: page.value });
   await profileStore.fetchFreelancerProfile();
 }
+
 onMounted(async () => {
   await getInvoices();
 });
@@ -124,3 +135,9 @@ watch(
   }, 500)
 );
 </script>
+
+<style scoped>
+.my-custom-table :deep(thead th) {
+  background-color: #ebeafa !important;
+}
+</style>
