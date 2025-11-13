@@ -24,6 +24,16 @@
             text="Add Funds"
             @click="addFundsDialog = true"
           />
+          <!-- DELETE BUTTON -->
+          <v-btn
+            color="red"
+            text
+            @click="deleteJob"
+            :disabled="clientJobStore.currentJob?.payment_verified"
+            title="Cannot delete a paid job"
+          >
+            Delete Job
+          </v-btn>
           <!-- <v-btn
             variant="outlined"
             icon="mdi-flag-outline"
@@ -90,52 +100,6 @@
             :text="clientJobStore.currentJob?.status"
           />
         </v-col>
-
-        <!-- <v-divider vertical />
-
-        <v-col v-if="clientJobStore.currentJob?.selected_freelancer">
-          <p class="text-h6">About Freelancer</p>
-          <v-list-item
-            title="Kathryn Murphy"
-            prepend-avatar="https://i.pravatar.cc?img=45"
-          >
-            <template #append>
-              <v-icon icon="mdi-check-decagram" color="green-darken-4" />
-            </template>
-          </v-list-item>
-
-          <div class="pa-2 ml-2">
-            <div class="d-flex align-center ga-2">
-              <p class="text-subtitle-1">Client Rating:</p>
-              <v-rating
-                :size="25"
-                :model-value="5"
-                active-color="yellow-darken-2"
-              />
-            </div>
-            <p
-              class="text-medium-emphasis font-weight-bold text-subtitle-1 mt-4"
-            >
-              <v-icon icon="mdi-map-marker-outline" />
-              Nairobi, Kenya
-            </p>
-            <p
-              class="text-medium-emphasis font-weight-bold text-subtitle-1 mt-4"
-            >
-              UI/UX Designer
-            </p>
-            <p
-              class="text-medium-emphasis font-weight-bold text-subtitle-1 mt-4"
-            >
-              Total Jobs Done: 12
-            </p>
-            <p class="text-medium-emphasis text-caption mt-4">
-              Member since April 2024
-            </p>
-          </div>
-
-          <v-btn text="View Profile" class="mt-5" />
-        </v-col> -->
       </v-row>
     </v-col>
 
@@ -172,22 +136,24 @@
 import moment from "moment";
 import { useClientJobsStore } from "~/store/client/jobs";
 import { useAppStore } from "~/store/app";
+import { useRouter, useRoute } from "vue-router";
 
 definePageMeta({
   layout: "client",
 });
 
-const { $apiClient } = useNuxtApp();
+const router = useRouter();
+const route = useRoute();
 const addFundsDialog = ref(false);
 
 const clientJobStore = useClientJobsStore();
-const route = useRoute();
+const appStore = useAppStore();
+
 onMounted(async () => {
   await clientJobStore.fetchJobDetails(route.params.id as string);
 });
 
 // watch payment response parameters and show appropriate error message
-const appStore = useAppStore();
 watch(
   () => route.query,
   (newQuery) => {
@@ -206,7 +172,7 @@ watch(
           message,
         });
 
-      // Make call to backend - I also do not know why, the backend kinda depends on it
+      // Backend call for payment status update
       $apiClient(
         `/jobs/${route.params.id}/?success=${success}&message=${message}`
       );
@@ -261,9 +227,8 @@ const timeLineItems = computed(() => [
 ]);
 
 const flagJobDialog = ref(false);
-
-// mark job as complete
 const markCompleteModal = ref(false);
+
 function markAsComplete() {
   if (!clientJobStore.currentJob) {
     console.error("No current job to mark as complete.");
@@ -279,5 +244,33 @@ function markAsComplete() {
     .catch((error) => {
       console.error("Failed to mark job as complete:", error);
     });
+}
+
+function deleteJob() {
+  if (!clientJobStore.currentJob) return;
+
+  if (clientJobStore.currentJob.payment_verified) {
+    alert("Cannot delete a job that has been paid.");
+    return;
+  }
+
+  if (confirm("Are you sure you want to delete this job?")) {
+    clientJobStore
+      .deleteJob(clientJobStore.currentJob.id)
+      .then(() => {
+        appStore.showSnackBar({
+          type: "success",
+          message: "Job deleted successfully",
+        });
+        router.push("/client/my-jobs");
+      })
+      .catch((error) => {
+        console.error("Error deleting job:", error);
+        appStore.showSnackBar({
+          type: "error",
+          message: "Failed to delete job",
+        });
+      });
+  }
 }
 </script>

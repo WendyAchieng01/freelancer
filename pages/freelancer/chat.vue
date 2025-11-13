@@ -138,12 +138,15 @@
             max-rows="2"
             class="flex-grow-1 mr-2 rounded-pill"
             @click:append="selectAttachFile"
+            @keydown.enter.prevent="handleEnter"
+            :disabled="chatStore.isLoading"
           />
           <v-btn
             icon="mdi-send"
             color="primary"
             class="rounded-circle"
             :loading="chatStore.isLoading"
+            :disabled="chatStore.isLoading"
             @click="sendMessage"
           />
         </div>
@@ -224,7 +227,7 @@ function selectAttachFile() { attachmentInput.value?.click(); }
 function removeAttachedFile(i: number) { form.attachments.splice(i, 1); }
 
 async function sendMessage() {
-  if (!isDirty.value || !selectedChat.value) return;
+  if (!isDirty.value || !selectedChat.value || chatStore.isLoading) return;
   clearErrors();
   try {
     await chatStore.sendMessage(selectedChat.value.chat_uuid, toFormData(form as Record<string, any>));
@@ -232,6 +235,14 @@ async function sendMessage() {
   } catch (e: any) {
     setErrors(e.response?._data);
   }
+}
+
+function handleEnter(event: KeyboardEvent) {
+  // Shift + Enter adds newline
+  if (event.shiftKey) return;
+
+  event.preventDefault();
+  sendMessage();
 }
 
 function getLatestMessageTime(chat: IChat) {

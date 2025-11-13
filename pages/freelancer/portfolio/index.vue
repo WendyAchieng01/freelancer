@@ -508,6 +508,10 @@ async function saveDetails() {
     await profileStore.updateFreelancerProfile(
       toFormData(detailsForm as Record<string, any>)
     );
+
+    // 🔥 Re-fetch updated profile
+    await profileStore.fetchFreelancerProfile();
+
     appStore.showSnackBar({
       message: "Profile saved successfully!",
       type: "success",
@@ -517,7 +521,6 @@ async function saveDetails() {
 
     if (backendErrors) {
       setDetailsFormErrors(backendErrors);
-
       const generalErrorMessage =
         backendErrors.detail ||
         backendErrors.non_field_errors?.[0] ||
@@ -531,6 +534,7 @@ async function saveDetails() {
     }
   }
 }
+
 
 // portfolio
 const portfolioDialog = ref(false);

@@ -71,6 +71,11 @@ const jobsList = computed(() =>
       pageSize: 10,
       search: props.search || undefined,
     });
+
+     jobStore.appliedJobs.forEach((job) => {
+      job.has_applied = true;
+    });
+
     return;
   }
 

@@ -181,8 +181,10 @@
             hide-details="auto"
             :loading="chatStore.isLoading"
             :error-messages="errors.content || errors.attachments"
+            :disabled="chatStore.isLoading"
             @click:prepend-inner="selectAttachFile"
             @click:append-inner="sendMessage"
+            @keydown.enter.prevent="handleEnter"
           />
 
           <div v-if="form.attachments.length" class="d-flex mb-3">
@@ -279,7 +281,7 @@ function removeAttachedFile(index: number) {
 }
 
 async function sendMessage() {
-  if (!isDirty.value) return;
+  if (!isDirty.value || chatStore.isLoading) return;
   clearErrors();
   try {
     if (!selectedChat.value) throw new Error("No chat selected");
@@ -292,6 +294,18 @@ async function sendMessage() {
   } catch (errors: any) {
     setErrors(errors.response?._data);
   }
+}
+
+// handle Enter press
+function handleEnter(event: KeyboardEvent) {
+  // Shift + Enter → new line
+  if (event.shiftKey) return;
+
+  // Prevent new line
+  event.preventDefault();
+
+  // Send message
+  sendMessage();
 }
 
 function getLatestMessageTime(chat: IChat) {
