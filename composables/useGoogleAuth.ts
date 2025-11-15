@@ -53,21 +53,19 @@ export function useGoogleAuth(mode: "login" | "register", userType?: "client" | 
 
     function renderGoogleButton(targetId: string) {
         const config = useRuntimeConfig();
-        const clientId =
-            config?.public?.googleClientId ||
-            (import.meta as any).env?.NUXT_GOOGLE_CLIENT_ID;
+
+        const clientId = config.public.googleClientId;
 
         if (!clientId) {
-            console.error("Missing Google client ID.");
+            console.error("Missing Google client ID. Check NUXT_PUBLIC_GOOGLE_CLIENT_ID");
             return;
         }
 
         if (!window.google?.accounts?.id) {
-            console.error("Google Identity Services SDK not available.");
+            console.error("Google Identity Services SDK not loaded yet.");
             return;
         }
 
-        // Initialize Google Identity SDK
         window.google.accounts.id.initialize({
             client_id: clientId,
             callback: handleGoogleResponse,
@@ -75,7 +73,7 @@ export function useGoogleAuth(mode: "login" | "register", userType?: "client" | 
 
         const target = document.getElementById(targetId);
         if (!target) {
-            console.error(`Google button element with id "${targetId}" not found.`);
+            console.error(`Element #${targetId} not found`);
             return;
         }
 

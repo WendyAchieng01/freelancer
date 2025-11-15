@@ -186,7 +186,8 @@ async function resendVerification() {
   loading.value = true;
 
   try {
-    await axios.post("/auth/resend-verification/", { email: email.value });
+    await authStore.resendVerificationEmail(email.value);
+
     appStore.showSnackBar({
       message: "Verification email sent successfully!",
       type: "success",
@@ -201,7 +202,16 @@ async function resendVerification() {
   }
 }
 
+
+// Wait for Google SDK
 onMounted(() => {
-  renderGoogleButton("googleBtn");
+  const initGoogle = () => {
+    if (window.google?.accounts?.id) {
+      renderGoogleButton("googleBtn");
+    } else {
+      setTimeout(initGoogle, 100);
+    }
+  };
+  initGoogle();
 });
 </script>

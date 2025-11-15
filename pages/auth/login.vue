@@ -142,10 +142,18 @@ async function loginUser() {
 }
 
 
+// Google Auth
 const { renderGoogleButton } = useGoogleAuth("login");
 
 onMounted(() => {
-  renderGoogleButton("googleLoginBtn");
+  const initGoogle = () => {
+    if (window.google?.accounts?.id) {
+      renderGoogleButton("googleLoginBtn");
+    } else {
+      setTimeout(initGoogle, 100);
+    }
+  };
+  initGoogle();
 });
 
 </script>

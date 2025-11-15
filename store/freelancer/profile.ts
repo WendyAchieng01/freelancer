@@ -101,21 +101,29 @@ export const useFreelancerProfileStore = defineStore(
     ) {
       isLoading.value = true;
       try {
+        const isFormData = payload instanceof FormData;
+
         const response = await $apiClient<IFreelancerProfile>(
           `/freelance/me/`,
           {
             method: "PUT",
             body: payload,
+            headers: isFormData
+              ? {}
+              : { "Content-Type": "application/json" },
           }
         );
+
         await fetchFreelancerProfile();
+
         appStore.showSnackBar({
           type: "success",
           message: "Freelancer profile updated successfully!",
         });
+
         return response;
       } catch (error: any) {
-        console.error(`Failed to update freelancer profile:`, error);
+        console.error("Failed to update freelancer profile:", error);
         appStore.showSnackBar({
           type: "error",
           message: "Failed to update profile.",
@@ -125,6 +133,7 @@ export const useFreelancerProfileStore = defineStore(
         isLoading.value = false;
       }
     }
+
 
     /**
      * Deletes the authenticated freelancer's profile.

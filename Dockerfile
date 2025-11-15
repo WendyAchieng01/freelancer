@@ -1,35 +1,23 @@
 # ---------- Build stage ----------
 FROM node:22-slim AS builder
 
-# Install system dependencies
+# Install build tools
 RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 ENV NODE_ENV=development
 
-# Copy package files first
+# Copy dependency manifests
 COPY package*.json ./
 
-# Clean, reproducible install
+# Install dependencies cleanly
 RUN npm ci --prefer-offline --no-audit --progress=false || npm install --legacy-peer-deps
 
 # Copy project source
 COPY . .
 
-# Load environment variables via build arguments
-# These will be passed during docker build
-ARG NUXT_PUBLIC_API_BASE_URL
-ARG NUXT_PUBLIC_MEDIA_BASE_URL
-ARG NUXT_GOOGLE_CLIENT_ID
-ARG NUXT_SESSION_PASSWORD
-
-# Set them as environment variables so Nuxt can see them
-ENV NUXT_PUBLIC_API_BASE_URL=$NUXT_PUBLIC_API_BASE_URL
-ENV NUXT_PUBLIC_MEDIA_BASE_URL=$NUXT_PUBLIC_MEDIA_BASE_URL
-ENV NUXT_GOOGLE_CLIENT_ID=$NUXT_GOOGLE_CLIENT_ID
-ENV NUXT_SESSION_PASSWORD=$NUXT_SESSION_PASSWORD
-
-# Build Nuxt app (fresh build, ensures new code is used)
+# Build Nuxt without hardcoding env vars
+# This ensures runtime envs from Render can override during container start
 RUN rm -rf .output && npm run build
 
 # ---------- Production stage ----------
@@ -37,16 +25,18 @@ FROM node:22-slim AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production
+ENV PORT=3000
 
-# Create non-root user
+# Create non-root user for security
 RUN useradd -m appuser
 USER appuser
 
-# Copy built output & package metadata
+# Copy only built output and package files
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/package*.json ./
 
+# Expose port
 EXPOSE 3000
-ENV PORT=3000
 
+# Start the Nuxt app
 CMD ["node", ".output/server/index.mjs"]
