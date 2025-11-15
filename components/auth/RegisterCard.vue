@@ -186,7 +186,8 @@ async function resendVerification() {
   loading.value = true;
 
   try {
-    await axios.post("/auth/resend-verification/", { email: email.value });
+    await authStore.resendVerificationEmail(email.value);
+
     appStore.showSnackBar({
       message: "Verification email sent successfully!",
       type: "success",
@@ -200,6 +201,7 @@ async function resendVerification() {
     loading.value = false;
   }
 }
+
 
 // Wait for Google SDK
 onMounted(() => {

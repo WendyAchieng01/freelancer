@@ -36,6 +36,20 @@ export default defineNuxtConfig({
           async: true,
           defer: true,
         },
+        // Google Analytics (GLOBAL)
+        {
+          src: "https://www.googletagmanager.com/gtag/js?id=G-BHL4B6XSH4",
+          async: true,
+        },
+        {
+          children: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-BHL4B6XSH4');
+        `,
+          type: "text/javascript",
+        } as any,
       ],
     },
   },
