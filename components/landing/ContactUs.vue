@@ -132,7 +132,7 @@ export default {
 
   methods: {
     handleSubmit() {
-      // simulate success — replace with real backend call when ready
+      // simulate success
       this.successSnackbar = true;
 
       // clear form after submit
