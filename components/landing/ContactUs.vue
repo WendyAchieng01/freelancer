@@ -7,55 +7,57 @@
         <v-col cols="12" md="5">
           <v-card style="background-color: #527e91" rounded="lg" theme="dark">
             <template #text>
-              <v-form @submit.prevent="submit">
+              <form @submit.prevent="submit">
+
                 <v-text-field
                   v-model="form.name"
                   label="Full Name"
                   variant="filled"
-                  style="background-color: #064263"
-                  hide-details="auto"
                   class="rounded"
                   color="white"
+                  hide-details="auto"
+                  style="background-color:#064263"
                 />
 
                 <v-text-field
                   v-model="form.phone"
                   label="Phone Number"
                   variant="filled"
-                  style="background-color: #064263"
-                  hide-details="auto"
                   class="rounded mt-5"
                   color="white"
+                  hide-details="auto"
+                  style="background-color:#064263"
                 />
 
                 <v-text-field
                   v-model="form.email"
                   label="Email Address"
                   variant="filled"
-                  style="background-color: #064263"
-                  hide-details="auto"
                   class="rounded mt-5"
                   color="white"
+                  hide-details="auto"
+                  style="background-color:#064263"
                 />
 
-                <v-text-field
+                <v-select
                   v-model="form.subject"
-                  label="Subject"
+                  :items="reasonOptions"
+                  label="Reason for Contact"
                   variant="filled"
-                  style="background-color: #064263"
-                  hide-details="auto"
                   class="rounded mt-5"
                   color="white"
+                  hide-details="auto"
+                  style="background-color:#064263"
                 />
 
                 <v-textarea
                   v-model="form.message"
                   label="Message"
                   variant="filled"
-                  style="background-color: #064263"
-                  hide-details="auto"
                   class="rounded mt-5"
                   color="white"
+                  hide-details="auto"
+                  style="background-color:#064263"
                 />
 
                 <v-btn
@@ -65,9 +67,8 @@
                   variant="elevated"
                   class="text-subtitle-1 mt-5"
                   block
-                  :loading="contactStore.isLoading"
                 />
-              </v-form>
+              </form>
             </template>
           </v-card>
         </v-col>
@@ -82,15 +83,34 @@
         </v-col>
       </v-row>
     </div>
+
+    <!-- SUCCESS SNACKBAR -->
+    <v-snackbar
+      v-model="successSnackbar"
+      color="green"
+      timeout="1000"
+      location="bottom"
+    >
+      Message sent successfully!
+    </v-snackbar>
   </v-sheet>
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive,ref } from "vue";
 import { useContactStore } from "~/store/contact";
 import type { IContactFormPayload } from "~/types/freelancer";
 
+
 const contactStore = useContactStore();
+const successSnackbar = ref(false);
+
+const reasonOptions = [
+  "General Inquiry",
+  "Support",
+  "Business Inquiry",
+  "Feedback",
+];
 
 const form = reactive<IContactFormPayload>({
   name: "",
@@ -102,6 +122,20 @@ const form = reactive<IContactFormPayload>({
 });
 
 async function submit() {
-  await contactStore.submitContactForm(form);
+  try {
+    form.contact_type = "general"; 
+    await contactStore.submitContactForm(form);
+    successSnackbar.value = true;
+
+    // Clear form
+    form.name = "";
+    form.email = "";
+    form.phone = "";
+    form.subject = "";
+    form.message = "";
+
+  } catch (error) {
+    console.error(error);
+  }
 }
 </script>
