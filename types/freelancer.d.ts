@@ -152,13 +152,13 @@ export interface IFreelancerWalletTransaction {
   net_earning: number;
 }
 
-export interface IContactFormData {
+export interface IContactFormPayload {
   name: string
   email: string
   phone: string
   subject: string
   message: string
-  contact_type: "general" | "support" | "sales" | string
+  contact_type: "general" | "support" | "billing" | string
   attachment?: string
 
 }

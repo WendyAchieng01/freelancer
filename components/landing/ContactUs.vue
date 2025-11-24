@@ -7,17 +7,13 @@
         <v-col cols="12" md="5">
           <v-card style="background-color: #527e91" rounded="lg" theme="dark">
             <template #text>
-              <form :action="backendRoute" method="POST" @submit.prevent="handleSubmit">
-
+              <v-form>
                 <v-text-field
                   v-model="form.name"
                   label="Full Name"
                   variant="filled"
                   class="rounded"
                   color="white"
-                  hide-details="auto"
-                  style="background-color:#064263"
-                  name="name"
                 />
 
                 <v-text-field
@@ -26,9 +22,6 @@
                   variant="filled"
                   class="rounded mt-5"
                   color="white"
-                  hide-details="auto"
-                  style="background-color:#064263"
-                  name="phone"
                 />
 
                 <v-text-field
@@ -38,20 +31,8 @@
                   class="rounded mt-5"
                   color="white"
                   hide-details="auto"
-                  style="background-color:#064263"
-                  name="email"
-                />
-
-                <v-select
-                  v-model="form.reason"
-                  :items="reasonOptions"
-                  label="Reason for Contact"
-                  variant="filled"
                   class="rounded mt-5"
                   color="white"
-                  hide-details="auto"
-                  style="background-color:#064263"
-                  name="reason"
                 />
 
                 <v-textarea
@@ -60,9 +41,6 @@
                   variant="filled"
                   class="rounded mt-5"
                   color="white"
-                  hide-details="auto"
-                  style="background-color:#064263"
-                  name="message"
                 />
 
                 <v-btn
@@ -88,62 +66,5 @@
         </v-col>
       </v-row>
     </div>
-
-    <!-- SUCCESS SNACKBAR -->
-    <v-snackbar
-      v-model="successSnackbar"
-      color="green"
-      timeout="3000"
-      location="bottom"
-    >
-      Message sent successfully!
-    </v-snackbar>
   </v-sheet>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      backendRoute: "/contact/submit/",
-
-      form: {
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-        reason: ""
-      },
-
-      reasonOptions: [
-        "General Inquiry",
-        "Technical Issue",
-        "Billing Issue",
-        "Partnership Request",
-        "Account Support",
-        "Feature Request",
-        "Report a Bug",
-        "Other"
-      ],
-
-      successSnackbar: false,
-    };
-  },
-
-  methods: {
-    handleSubmit() {
-      // simulate success — replace with real backend call when ready
-      this.successSnackbar = true;
-
-      // clear form after submit
-      this.form = {
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-        reason: "",
-      };
-    }
-  }
-};
-</script>
