@@ -6,20 +6,21 @@
     :color="snackBarData.type"
   >
     <v-list-item
-      :subtitle="truncateMessage(snackBarData.message)"
+      :subtitle="snackBarData.message"
       :prepend-icon="snackBarIcon"
     />
   </v-snackbar>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { useAppStore } from "~/store/app";
+
 const { snackBarData } = useAppStore();
 
-function truncateMessage(message: string) {
-  if (message.length <= 80) return message;
-  else return message.slice(0, 80) + "...";
-}
+// Removed truncation, message now shows fully
+// (function deleted completely)
+
 const snackBarIcon = computed(() => {
   switch (snackBarData.type) {
     case "success":

@@ -19,7 +19,7 @@ export const useContactStore = defineStore("contact", () => {
 
             appStore.showSnackBar({
                 type: "success",
-                message: "Your message has been sent successfully!",
+                message: "Message sent successfully! Please check your email for our response, including your spam folder.",
             });
 
             return response;

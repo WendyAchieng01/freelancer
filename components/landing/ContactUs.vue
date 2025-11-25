@@ -87,16 +87,6 @@
         </v-col>
       </v-row>
     </div>
-<v-snackbar
-  v-model="successSnackbar"
-  color="green"
-  timeout="6000"
-  location="bottom"
-  multi-line
-  class="text-center"
->
-  Message sent successfully! Please check your email for our response, including your spam folder.
-</v-snackbar>
   </v-sheet>
 </template>
 
@@ -136,17 +126,16 @@ async function submit() {
   try {
     form.contact_type = "general";
 
-    const backup = { ...form }; 
+    contactStore.isLoading = true; // start loading
 
+    await contactStore.submitContactForm({ ...form });
+
+    // Clear form ONLY after success
     form.name = "";
     form.email = "";
     form.phone = "";
     form.subject = "";
     form.message = "";
-
-    await contactStore.submitContactForm(backup);
-
-    successSnackbar.value = true;
 
   } catch (error) {
     console.error(error);
