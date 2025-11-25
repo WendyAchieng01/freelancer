@@ -83,16 +83,16 @@
         </v-col>
       </v-row>
     </div>
-
-    <!-- SUCCESS SNACKBAR -->
-    <v-snackbar
-      v-model="successSnackbar"
-      color="green"
-      timeout="1000"
-      location="bottom"
-    >
-      Message sent successfully! Please check your email for our response, including your spam folder.
-    </v-snackbar>
+<v-snackbar
+  v-model="successSnackbar"
+  color="green"
+  timeout="6000"
+  location="bottom"
+  multi-line
+  class="text-center"
+>
+  Message sent successfully! Please check your email for our response, including your spam folder.
+</v-snackbar>
   </v-sheet>
 </template>
 
