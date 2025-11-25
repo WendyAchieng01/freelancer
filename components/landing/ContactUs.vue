@@ -92,10 +92,10 @@
     <v-snackbar
       v-model="successSnackbar"
       color="green"
-      timeout="3000"
+      timeout="1000"
       location="bottom"
     >
-      Message sent successfully!
+      Message sent successfully! Please check your email for our response, including your spam folder.
     </v-snackbar>
   </v-sheet>
 </template>
@@ -114,7 +114,13 @@ const reasonOptions = [
   "Support",
   "Business Inquiry",
   "Feedback",
-  "Billing",
+  "Technical Issue",
+  "Billing Issue",
+  "Partnership Request",
+  "Account Support",
+  "Feature Request",
+  "Report a Bug",
+  "Other"
 ];
 
 const form = reactive<IContactFormPayload>({
@@ -130,7 +136,6 @@ async function submit() {
   try {
     form.contact_type = "general";
 
- 
     const backup = { ...form }; 
 
     form.name = "";
@@ -147,5 +152,4 @@ async function submit() {
     console.error(error);
   }
 }
-
 </script>
