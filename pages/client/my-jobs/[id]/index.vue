@@ -91,7 +91,7 @@
           <div class="overview-item">
             <span class="label">Status</span>
             <span class="value text-capitalize">
-              {{ clientJobStore.currentJob?.status }}
+              {{ formatStatus(clientJobStore.currentJob?.status) }}
             </span>
           </div>
 
@@ -191,8 +191,9 @@
             </v-btn>
 
             <v-avatar size="64" class="mb-3 mx-auto">
-              <img
+              <v-img
                 :src="freelancer.profile_pic || 'https://i.pravatar.cc/64'"
+                cover
                 alt="Profile Pic"
               />
             </v-avatar>
@@ -453,6 +454,12 @@ function deleteJob() {
       });
   }
 }
+
+function formatStatus(status?: string) {
+  if (!status) return "";
+  return status.replace(/_/g, " ");
+}
+
 
 function openRejectDialog(freelancer: any) {
   selectedFreelancer.value = freelancer;
