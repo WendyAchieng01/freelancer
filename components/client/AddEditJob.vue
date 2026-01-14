@@ -39,11 +39,19 @@
 
           <v-text-field
             v-model="jobForm.max_freelancers"
-            label="Max Freelancers"
+            label="Max Freelancers Applications To Accept"
             placeholder="e.g., 1"
             type="number"
             :rules="[isInteger, positiveNumber]"
             :error-messages="jobFormErrors.max_freelancers"
+          />
+          <v-text-field
+            v-model="jobForm.required_freelancers"
+            label="How many Freelancers are required for this job"
+            placeholder="e.g., 1"
+            type="number"
+            :rules="[isInteger, positiveNumber]"
+            :error-messages="jobFormErrors.required_freelancers"
           />
           <v-select
             v-model="jobForm.preferred_freelancer_level"
@@ -143,6 +151,7 @@
           />
         </template>
       </v-form>
+      
     </v-col>
   </v-row>
 </template>
@@ -193,7 +202,8 @@ const {
   price: "0.00",
   deadline_date: "",
   status: "open",
-  max_freelancers: 1,
+  max_freelancers: 100,
+  required_freelancers:1,
   preferred_freelancer_level: "entry",
   skills_required: [],
 });

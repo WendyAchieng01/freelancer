@@ -83,8 +83,18 @@ export interface IJobCreatePayload {
   deadline_date: string;
   status?: JobStatus;
   max_freelancers?: number;
+  required_freelancers?:number;
   preferred_freelancer_level?: PreferredFreelancerLevel;
   skills_required: string[];
+}
+
+export interface IFreelancer {
+  id: number;
+  username: string;
+  full_name: string; 
+  profile_pic?: string;
+  rating: number;
+  recent_reviews: any[];
 }
 
 export interface IJob {
@@ -99,9 +109,10 @@ export interface IJob {
   status: JobStatus;
   client: string;
   max_freelancers: number;
+  required_freelancers:number;
   preferred_freelancer_level: PreferredFreelancerLevel;
   slug: string;
-  selected_freelancer: string | null;
+  selected_freelancers: IFreelancer[];
   payment_verified: boolean;
   skills_required_display: { id: number; name: string }[];
   application_count: number;

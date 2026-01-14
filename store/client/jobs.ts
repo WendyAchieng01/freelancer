@@ -166,37 +166,31 @@ export const useClientJobsStore = defineStore("clientJobs", () => {
    * @param slug The slug of the job to update.
    * @param payload The partial job data to update.
    */
-  async function updateJob(slug: string, payload: Partial<IJobCreatePayload>) {
+  async function updateJob(slug: string, payload: IJobCreatePayload) {
     isLoading.value = true;
     try {
       const response = await $apiClient<IJob>(`/jobs/${slug}/`, {
-        method: "PATCH",
+        method: "PUT", 
         body: payload,
       });
-      // Update the job in the local state
-      const index = jobs.value.findIndex((job) => job.slug === slug);
-      if (index !== -1) {
-        jobs.value[index] = response;
-      }
-      if (currentJob.value && currentJob.value.slug === slug) {
-        currentJob.value = response;
-      }
+
+      const index = jobs.value.findIndex(j => j.slug === slug);
+      if (index !== -1) jobs.value[index] = response;
+      if (currentJob.value?.slug === slug) currentJob.value = response;
+
       appStore.showSnackBar({
         type: "success",
         message: "Job updated successfully!",
       });
+
       return response;
-    } catch (error: any) {
-      console.error(`Failed to update job with slug ${slug}:`, error);
-      appStore.showSnackBar({
-        type: "error",
-        message: "Failed to update job.",
-      });
+    } catch (error) {
       return Promise.reject(error);
     } finally {
       isLoading.value = false;
     }
   }
+
 
   /**
    * Deletes a job.
@@ -303,42 +297,39 @@ export const useClientJobsStore = defineStore("clientJobs", () => {
    * @param jobSlug The slug of the job.
    * @param applicationId The ID of the application to reject.
    */
-  async function rejectApplication(jobSlug: string, applicationId: number) {
+  async function rejectApplication(jobSlug: string, username: string) {
     isLoading.value = true;
     try {
-      // Backend expects 'identifier' to be the application ID
       const response = await $apiClient(
-        `/jobs/${jobSlug}/reject/${applicationId}/`,
-        {
-          method: "POST",
-        }
+        `/jobs/${jobSlug}/reject/${username}/`,
+        { method: "POST" }
       );
-      // Update the status of the application in local state
-      const index = applications.value.findIndex(
-        (app) => app.id === applicationId
-      );
-      if (index !== -1) {
-        applications.value[index].status = "rejected";
+
+      // Remove freelancer from store state
+      if (currentJob.value) {
+        currentJob.value.selected_freelancers =
+          currentJob.value.selected_freelancers.filter(
+            (f: any) => f.username !== username
+          );
       }
+
       appStore.showSnackBar({
         type: "success",
-        message: "Application rejected!",
+        message: "Freelancer removed from job",
       });
+
       return response;
-    } catch (error: any) {
-      console.log(
-        `Failed to reject application ${applicationId} for job ${jobSlug}:`,
-        error
-      );
+    } catch (error) {
       appStore.showSnackBar({
         type: "error",
-        message: "Failed to reject application.",
+        message: "Failed to remove freelancer",
       });
-      return Promise.reject(error);
+      throw error;
     } finally {
       isLoading.value = false;
     }
   }
+
 
   async function fetchDashboardMetrics() {
     try {
