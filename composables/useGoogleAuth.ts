@@ -1,17 +1,17 @@
 import { useAuthStore } from "~/store/auth";
 import { useAppStore } from "~/store/app";
 
-export function useGoogleAuth(mode: "login" | "register", userType?: "client" | "freelancer") {
+export function useGoogleAuth(
+    mode: "login" | "register",
+    userType?: "client" | "freelancer"
+) {
     const authStore = useAuthStore();
     const appStore = useAppStore();
 
     async function handleGoogleResponse(response: any) {
-        console.log("Google callback response:", response);
         const id_token = response?.credential;
-        const user_type = userType;
 
         if (!id_token) {
-            console.error("No id_token received from Google");
             appStore.showSnackBar({
                 message: "Google did not return a token. Please try again.",
                 type: "error",
@@ -20,10 +20,11 @@ export function useGoogleAuth(mode: "login" | "register", userType?: "client" | 
         }
 
         try {
-            // Unified function — backend handles login/signup automatically
-            const res = await authStore.googleAuth(id_token, mode === "register" ? user_type : undefined);
+            const res = await authStore.googleAuth(
+                id_token,
+                mode === "register" ? userType : undefined
+            );
 
-            // Only one snackbar (store already shows it, so this is optional)
             appStore.showSnackBar({
                 message: res.is_new
                     ? "Account created successfully with Google!"
@@ -31,14 +32,15 @@ export function useGoogleAuth(mode: "login" | "register", userType?: "client" | 
                 type: "success",
             });
 
-            // Determine redirect target
-            const finalType = res?.user_type || user_type || res?.user?.user_type || "client";
+            const finalType =
+                res?.user_type || userType || res?.user?.user_type || "client";
 
             navigateTo(
-                finalType === "client" ? "/client/dashboard" : "/freelancer/dashboard"
+                finalType === "client"
+                    ? "/client/dashboard"
+                    : "/freelancer/dashboard"
             );
         } catch (err: any) {
-            console.error("Google auth failed:", err);
             const backendErrMsg =
                 err?.response?._data?.error ||
                 err?.response?._data?.detail ||
@@ -65,11 +67,12 @@ export function useGoogleAuth(mode: "login" | "register", userType?: "client" | 
         const target = document.getElementById(targetId);
         if (!target) return;
 
-        const waitForGoogle = () => {
+        const waitForGoogleReady = () => {
             const googleId = window.google?.accounts?.id;
 
+            // Google object exists but SDK not fully ready yet
             if (!googleId || typeof googleId.initialize !== "function") {
-                requestAnimationFrame(waitForGoogle);
+                requestAnimationFrame(waitForGoogleReady);
                 return;
             }
 
@@ -88,7 +91,7 @@ export function useGoogleAuth(mode: "login" | "register", userType?: "client" | 
                     logo_alignment: "left",
                 });
 
-                // silent one-time reload
+                // ONE-TIME SILENT RELOAD FALLBACK
                 setTimeout(() => {
                     if (!target.innerHTML.trim()) {
                         if (!sessionStorage.getItem("google_reload_once")) {
@@ -98,16 +101,14 @@ export function useGoogleAuth(mode: "login" | "register", userType?: "client" | 
                     }
                 }, 1500);
 
-            } catch (e) {
-                console.warn("Google init failed, retrying…", e);
-                setTimeout(waitForGoogle, 100);
+            } catch (err) {
+                // if Google  throws once before succeeding
+                setTimeout(waitForGoogleReady, 100);
             }
         };
 
-        waitForGoogle();
+        waitForGoogleReady();
     }
 
-
-
-    return { renderGoogleButton };  
+    return { renderGoogleButton };
 }
