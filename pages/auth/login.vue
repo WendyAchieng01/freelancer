@@ -144,13 +144,9 @@ async function loginUser() {
 // Google Auth
 const { renderGoogleButton } = useGoogleAuth("login");
 
-onMounted(async () => {
-  try {
-    await loadGoogleScript();
-    renderGoogleButton("googleLoginBtn");
-  } catch (e) {
-    console.log("Google Auth failed to load", e);
-  }
+onMounted(() => {
+  renderGoogleButton("googleLoginBtn");
 });
+
 
 </script>
