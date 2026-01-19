@@ -86,7 +86,7 @@ import { useAppStore } from "~/store/app";
 import { useAuthStore } from "~/store/auth";
 import type { ILoginPayload } from "~/types/auth";
 import { useGoogleAuth } from "~/composables/useGoogleAuth";
-
+import { loadGoogleScript } from "~/composables/loadgooglebtns"; 
 
 definePageMeta({
   layout: "auth",
@@ -145,15 +145,13 @@ async function loginUser() {
 // Google Auth
 const { renderGoogleButton } = useGoogleAuth("login");
 
-onMounted(() => {
-  const initGoogle = () => {
-    if (window.google?.accounts?.id) {
-      renderGoogleButton("googleLoginBtn");
-    } else {
-      setTimeout(initGoogle, 100);
-    }
-  };
-  initGoogle();
+onMounted(async () => {
+  try {
+    await loadGoogleScript();
+    renderGoogleButton("googleLoginBtn");
+  } catch (e) {
+    console.log("Google Auth failed to load", e);
+  }
 });
 
 </script>
