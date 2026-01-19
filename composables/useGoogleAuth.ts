@@ -3,11 +3,12 @@ import { useAppStore } from "~/store/app";
 
 export function useGoogleAuth(mode: "login" | "register") {
     const config = useRuntimeConfig();
-    const clientId = config.public.googleClientId;
+    const clientId = "777181770887-2klnijg1daapgb2ujpb6d92hrh7fhiq2.apps.googleusercontent.com";
 
     const initGoogle = (targetId: string) => {
         const googleId = window.google?.accounts?.id;
         const target = document.getElementById(targetId);
+
 
         if (!googleId || !target) return false;
 
