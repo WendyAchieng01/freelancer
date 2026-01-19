@@ -107,23 +107,6 @@ const {
   remember_me: false,
 });
 
-onMounted(() => {
-  if (!import.meta.client) return;
-
-  const alreadyReloaded = sessionStorage.getItem("gsi_hydrated");
-
-  if (alreadyReloaded) return;
-
-  // wait for Google render attempt
-  setTimeout(() => {
-    const googleBtn = document.getElementById("googleLoginBtn");
-
-    if (!googleBtn || !googleBtn.innerHTML.trim()) {
-      sessionStorage.setItem("gsi_hydrated", "1");
-      location.reload();
-    }
-  }, 1200); // time to wait for google
-});
 
 
 async function loginUser() {
@@ -166,6 +149,7 @@ const { renderGoogleButton } = useGoogleAuth("login");
 onMounted(() => {
   renderGoogleButton("googleLoginBtn");
 });
+
 
 
 </script>
