@@ -86,7 +86,6 @@ import { useAppStore } from "~/store/app";
 import { useAuthStore } from "~/store/auth";
 import type { ILoginPayload } from "~/types/auth";
 import { useGoogleAuth } from "~/composables/useGoogleAuth";
-import { loadGoogleScript } from "~/composables/loadgooglebtns"; 
 
 definePageMeta({
   layout: "auth",

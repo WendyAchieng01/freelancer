@@ -31,11 +31,6 @@ export default defineNuxtConfig({
         }
       ],
       script: [
-        {
-          src: "https://accounts.google.com/gsi/client",
-          async: true,
-          defer: true,
-        },
         // Google Analytics (GLOBAL)
         {
           src: "https://www.googletagmanager.com/gtag/js?id=G-BHL4B6XSH4",

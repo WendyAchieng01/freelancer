@@ -58,57 +58,30 @@ export function useGoogleAuth(
 
         const config = useRuntimeConfig();
         const clientId = config.public.googleClientId;
-
-        if (!clientId) {
-            console.error("Missing Google client ID");
-            return;
-        }
+        if (!clientId) return;
 
         const target = document.getElementById(targetId);
         if (!target) return;
 
-        const waitForGoogleReady = () => {
-            const googleId = window.google?.accounts?.id;
+        const googleId = window.google?.accounts?.id;
+        if (!googleId) {
+            console.error("Google SDK not available");
+            return;
+        }
 
-            // Google object exists but SDK not fully ready yet
-            if (!googleId || typeof googleId.initialize !== "function") {
-                requestAnimationFrame(waitForGoogleReady);
-                return;
-            }
+        googleId.initialize({
+            client_id: clientId,
+            callback: handleGoogleResponse,
+        });
 
-            try {
-                googleId.initialize({
-                    client_id: clientId,
-                    callback: handleGoogleResponse,
-                });
-
-                googleId.renderButton(target, {
-                    theme: "outline",
-                    size: "large",
-                    text: mode === "login" ? "signin_with" : "signup_with",
-                    shape: "rectangular",
-                    width: "100%",
-                    logo_alignment: "left",
-                });
-
-                // ONE-TIME SILENT RELOAD FALLBACK
-                setTimeout(() => {
-                    if (!target.innerHTML.trim()) {
-                        if (!sessionStorage.getItem("google_reload_once")) {
-                            sessionStorage.setItem("google_reload_once", "1");
-                            location.reload();
-                        }
-                    }
-                }, 1500);
-
-            } catch (err) {
-                // if Google  throws once before succeeding
-                setTimeout(waitForGoogleReady, 100);
-            }
-        };
-
-        waitForGoogleReady();
+        googleId.renderButton(target, {
+            theme: "outline",
+            size: "large",
+            width: "100%",
+            text: mode === "login" ? "signin_with" : "signup_with",
+        });
     }
+
 
     return { renderGoogleButton };
 }
