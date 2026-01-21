@@ -68,6 +68,7 @@ export interface IFreelancerJobListing {
   deadline_date: string;
   status: JobStatus;
   max_freelancers: number;
+  required_freelancers: number;
   preferred_freelancer_level: PreferredFreelancerLevel;
   slug: string;
   selected_freelancer: string | null;
@@ -134,23 +135,42 @@ export interface IFreelancerWalletSummary {
   total_earned: string;
   total_spent: string;
 }
+
 export interface IFreelancerWalletTransaction {
   id: number;
   user: number;
-  transaction_type: "job_picked" | "job_completed" | "payment" | string;
-  rate: string;
-  payment_type: string | null;
-  transaction_id: string | null;
+
+  transaction_type:
+  | "job_picked"
+  | "payment_received"
+  | "payment_processing"
+  | string;
+
   amount: string;
   gross_amount: string;
+  rate: number;
+
   status: "in_progress" | "completed" | "failed" | string;
-  job: number;
-  job_title: string;
+
+  job: number | null;
+  job_title: string | null;
+
+  payment_period?: string;
+
   timestamp: string;
   completed: boolean;
-  extra_data: Record<string, any>;
-  net_earning: number;
+
+  extra_data: {
+    reference?: string;
+    transfer_code?: string;
+    currency?: string;
+    status?: string;
+    [key: string]: any;
+  };
+
+  net_earning?: number;
 }
+
 
 export interface IContactFormPayload {
   name: string

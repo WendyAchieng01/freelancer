@@ -18,6 +18,26 @@ export const useFreelancerWalletStore = defineStore("freelancerWallet", () => {
   const { $apiClient } = useNuxtApp();
   const appStore = useAppStore();
 
+  const pendingPayout = computed(() => {
+    return transactions.value
+      .filter(
+        (t) =>
+          t.transaction_type === "job_picked" &&
+          t.status === "in_progress"
+      )
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  });
+
+  const totalEarnings = computed(() => {
+    return transactions.value
+      .filter(
+        (t) =>
+          t.transaction_type === "payment_received" &&
+          t.status === "completed"
+      )
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+  });
+
   // Actions
 
   /**
@@ -50,15 +70,9 @@ export const useFreelancerWalletStore = defineStore("freelancerWallet", () => {
    * Fetches a paginated list of the authenticated freelancer's wallet transactions.
    * @param params Optional query parameters for filtering/pagination.
    */
-  async function fetchTransactions(params?: {
-    page?: number;
-    pageSize?: number;
-    search?: string;
-    ordering?: string;
-    transaction_type?: string;
-    status?: string;
-  }) {
+  async function fetchTransactions(params?: { page?: number }) {
     isLoading.value = true;
+
     try {
       const response = await $apiClient<
         PaginatedResponse<IFreelancerWalletTransaction>
@@ -66,20 +80,30 @@ export const useFreelancerWalletStore = defineStore("freelancerWallet", () => {
         method: "GET",
         query: params,
       });
-      transactions.value = response.results;
+
+      transactions.value = response.results.map((tx) => ({
+        ...tx,
+
+        /** Batch payout reference */
+        batch_reference:
+          tx.extra_data?.reference?.split(":")[0] ?? "—",
+
+        /** Human readable type */
+        display_type:
+          tx.transaction_type === "payment_received"
+            ? "Payout"
+            : "Job In Progress",
+
+        /** Normalize */
+        amount_number: Number(tx.amount),
+      }));
+
       totalTransactionsCount.value = response.count;
-      return response.results;
-    } catch (error: any) {
-      console.error("Failed to fetch freelancer transactions:", error);
-      appStore.showSnackBar({
-        type: "error",
-        message: "Failed to load transactions.",
-      });
-      return Promise.reject(error);
     } finally {
       isLoading.value = false;
     }
   }
+
 
   return {
     walletSummary,
@@ -90,6 +114,8 @@ export const useFreelancerWalletStore = defineStore("freelancerWallet", () => {
     hasTransactions,
     fetchWalletSummary,
     fetchTransactions,
+    pendingPayout,
+    totalEarnings,
   };
 });
 

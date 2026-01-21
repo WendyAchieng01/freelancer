@@ -88,6 +88,17 @@
           </div>
         </div>
 
+        <!-- Freelancer Requirement Info -->
+        <div v-if="currentJob?.required_freelancers > 1" class="mt-4 pa-3 info-card">
+          <v-icon icon="mdi-information-outline" class="mr-2" color="blue-darken-2" />
+          <span class="text-subtitle-1">
+            This job requires <strong>{{ currentJob.required_freelancers }}</strong> freelancers.
+            The total budget of <strong>KES {{ formatAmount(currentJob.price) }}</strong> 
+            will be divided among all selected freelancers after platform fees.
+          </span>
+        </div>
+
+
         <v-divider v-if="trainingsStore.availableTrainings.length" class="my-4" />
 
         <!-- training materials -->
@@ -264,3 +275,17 @@ async function removeBookMark() {
   if (currentJob.value) await jobStore.removeBookmarkJob(currentJob.value.slug).then(() => currentJob.value.bookmarked = false)
 }
 </script>
+
+<style scoped>
+.info-card {
+  background-color: rgba(128, 90, 200, 0.1);
+  border-left: 4px solid rgb(128, 90, 200);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  color: rgb(55, 20, 80); 
+}
+</style>

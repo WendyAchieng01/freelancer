@@ -21,7 +21,7 @@
     <v-divider class="my-4" />
 
     <p class="text-subtitle-1">
-      NB: Funds will be disbursed weekly for freelancers
+      NB: Funds will be disbursed at the end of the payment period if the job is already completed ( for freelancers )
     </p>
 
     <v-divider class="my-4" />
@@ -74,26 +74,31 @@
       -->
     </div>
 
-    <!-- Payment Stats (optional, kept for later use)
     <div class="d-flex flex-column flex-sm-row ga-2 w-sm-33 mb-3">
-      <v-card class="py-2 w-100">
+      <v-card class="py-4 w-100" variant="tonal">
         <template #title>
-          <p class="text-subtitle-1">Pending Payout</p>
+          <p class="text-subtitle-2">Pending Payout</p>
         </template>
         <template #text>
-          <p class="text-h5 font-weight-medium">KES 0.00</p>
+          <p class="text-h5 font-weight-medium">
+            KES {{ walletStore.pendingPayout.toLocaleString() }}
+          </p>
         </template>
       </v-card>
-      <v-card class="py-2 w-100">
+
+      <v-card class="py-4 w-100" variant="tonal">
         <template #title>
-          <p class="text-subtitle-1">Total Earnings</p>
+          <p class="text-subtitle-2">Total Earnings</p>
         </template>
         <template #text>
-          <p class="text-h5 font-weight-medium">KES 0.00</p>
+          <p class="text-h5 font-weight-medium">
+            KES {{ walletStore.totalEarnings.toLocaleString() }}
+          </p>
         </template>
       </v-card>
     </div>
-    -->
+
+    
 
     <!-- Transactions Table -->
     <FreelancerTransactionTable
