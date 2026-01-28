@@ -37,6 +37,11 @@ export default defineNuxtConfig({
           async: true,
         },
         {
+          src: "https://accounts.google.com/gsi/client",
+          async: true,
+          defer: true,
+        },
+        {
           children: `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
