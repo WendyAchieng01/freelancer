@@ -78,12 +78,15 @@ export function useGoogleAuth(
         googleId.initialize({
             client_id: CLIENT_ID,
             callback: handleGoogleResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            use_fedcm_for_prompt: false,
         });
 
         googleId.renderButton(target, {
             theme: "outline",
             size: "large",
-            width: "100%",
+            width: "300",
             text: mode === "login" ? "signin_with" : "signup_with",
             shape: "rectangular",
             logo_alignment: "left",
