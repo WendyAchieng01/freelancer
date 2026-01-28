@@ -15,9 +15,10 @@ export function useGoogleAuth(
         "777181770887-2klnijg1daapgb2ujpb6d92hrh7fhiq2.apps.googleusercontent.com";
 
     async function handleGoogleResponse(response: any) {
-        console.log("Google callback response:", response);
+        console.log("Google callback response received");
 
         const id_token = response?.credential;
+
         if (!id_token) {
             appStore.showSnackBar({
                 message: "Google did not return a token. Please try again.",
@@ -32,6 +33,13 @@ export function useGoogleAuth(
                 mode === "register" ? userType : undefined
             );
 
+            // Chrome-safe, backend-safe extraction
+            const finalType =
+                res?.user_type ||
+                res?.user?.user_type ||
+                userType ||
+                "client";
+
             appStore.showSnackBar({
                 message: res?.is_new
                     ? "Account created successfully with Google!"
@@ -39,17 +47,12 @@ export function useGoogleAuth(
                 type: "success",
             });
 
-            const finalType =
-                res?.user_type ||
-                userType ||
-                res?.user?.user_type ||
-                "client";
-
             navigateTo(
                 finalType === "client"
                     ? "/client/dashboard"
                     : "/freelancer/dashboard"
             );
+
         } catch (err: any) {
             console.error("Google auth failed:", err);
 
@@ -64,6 +67,7 @@ export function useGoogleAuth(
             });
         }
     }
+
 
     function initGoogle(targetId: string) {
         const googleId = window.google?.accounts?.id;
