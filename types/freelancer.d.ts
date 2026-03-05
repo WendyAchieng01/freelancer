@@ -21,6 +21,7 @@ export interface IFreelancerProfileUpdatePayload {
   experience_years: number;
   hourly_rate: number;
   availability: "full_time" | "part_time" | "custom" | "not_available";
+  portfolio_link?: string;
   skills: string[];
   languages: string[];
   is_visible: boolean;

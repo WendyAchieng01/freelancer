@@ -71,15 +71,15 @@
 const slides = [
   {
     title: "Reach financial goals faster",
-    text: "As a freelancer, finding the right gigs can be challenging, but Nill Tech solutions made it simple. I love the personalized job recommendations and the ability to showcase my portfolio",
+    text: "As a freelancer, finding the right gigs can be challenging, but NillTech solutions made it simple. I love the personalized job recommendations and the ability to showcase my portfolio",
   },
   {
     title: "Get paid on time, every time",
-    text: "Nill Tech solutions has transformed the way I manage my finances. The invoicing feature is a game-changer, and I no longer worry about late payments.",
+    text: "NillTech solutions has transformed the way I manage my finances. The invoicing feature is a game-changer, and I no longer worry about late payments.",
   },
   {
     title: "Stay organized and focused",
-    text: "As a freelancer, staying organized is crucial. Nill Tech solutions helps me keep track of my projects, deadlines, and finances all in one place.",
+    text: "As a freelancer, staying organized is crucial. NillTech solutions helps me keep track of my projects, deadlines, and finances all in one place.",
   },
 ];
 

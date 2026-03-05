@@ -4,6 +4,8 @@ import type {
   IFreelancerJobApplication,
 } from "~/types/freelancer.d";
 import { useAppStore } from "~/store/app";
+import { useFreelancerProfileStore } from "~/store/freelancer/profile";
+import { useAuthStore } from "~/store/auth";
 
 export const useFreelancerJobsStore = defineStore("freelancerJobs", () => {
   // State
@@ -23,6 +25,8 @@ export const useFreelancerJobsStore = defineStore("freelancerJobs", () => {
   const hasAvailableJobs = computed(() => availableJobs.value.length > 0);
   const hasCurrentJob = computed(() => !!currentJob.value);
   const hasMyApplications = computed(() => myApplications.value.length > 0);
+  const profileStore = useFreelancerProfileStore();
+  const authStore = useAuthStore();
 
   const { $apiClient } = useNuxtApp();
   const appStore = useAppStore();
@@ -135,33 +139,37 @@ export const useFreelancerJobsStore = defineStore("freelancerJobs", () => {
   async function applyForJob(
     jobSlug: string,
     payload: IJobApplicationCreatePayload | FormData
-  ) {
+  ): Promise<IFreelancerJobApplication> {
+    // Check authentication
+    if (!authStore.isLoggedIn || authStore.user?.user_type !== "freelancer") {
+      throw new Error("Not logged in as freelancer");
+    }
+
+    // Fetch profile
+    await profileStore.fetchFreelancerProfile();
+
+    if (!profileStore.isProfileComplete) {
+      throw new Error("Profile incomplete");
+    }
+
+    // Apply
     isLoading.value = true;
     try {
-      const response = await $apiClient<IFreelancerJobApplication>(
-        `/jobs/${jobSlug}/apply/`,
-        {
-          method: "POST",
-          body: payload,
-        }
-      );
-
-      appStore.showSnackBar({
-        type: "success",
-        message: "Application submitted successfully!",
+      const response = await $apiClient<IFreelancerJobApplication>(`/jobs/${jobSlug}/apply/`, {
+        method: "POST",
+        body: payload,
       });
+      appStore.showSnackBar({ type: "success", message: "Application submitted successfully!" });
       return response;
     } catch (error: any) {
-      console.error(`Failed to apply for job ${jobSlug}:`, error);
-      appStore.showSnackBar({
-        type: "error",
-        message: "Failed to submit application.",
-      });
-      return Promise.reject(error);
+      console.error("Failed to apply for job", error);
+      throw error; // propagate API error to component
     } finally {
       isLoading.value = false;
     }
   }
+
+
 
   /**
  * Fetches all jobs the freelancer has applied to.

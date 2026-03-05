@@ -281,7 +281,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  // inside your defineStore
+
   async function googleAuth(idToken: string, userType?: "client" | "freelancer") {
     isLoading.value = true;
     try {
@@ -297,6 +297,8 @@ export const useAuthStore = defineStore("auth", () => {
       // Save tokens
       accessToken.value = response.access;
       refreshToken.value = response.refresh;
+
+      console.log("FULL BACKEND RESPONSE:", response);
 
       // Extract user data (simplified)
       const responseUser = response.user;

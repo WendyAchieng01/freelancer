@@ -175,8 +175,20 @@
       @closed="redirectToDashboard"
       @action-click="redirectToDashboard"
     />
+
+     <!-- Profile Incomplete Modal -->
+    <AppModal
+      v-model="showProfileIncompleteModal"
+      title="Profile Incomplete"
+      message="You must complete your profile before applying for jobs."
+      action-button-text="Complete Now"
+      type="error" 
+      @action-click="goToCompleteProfile"
+    />
   </div>
 </template>
+
+
 
 <script setup lang="ts">
 import moment from "moment";
@@ -184,24 +196,17 @@ import { useAppStore } from "~/store/app";
 import { useFreelancerJobsStore } from "~/store/freelancer/jobs";
 import { useFreelancerTrainingsStore } from "~/store/freelancer/trainings";
 import type { IJobApplicationCreatePayload } from "~/types/freelancer";
+import { navigateTo } from "#app";
 
-definePageMeta({
-  layout: "freelancer",
-});
+definePageMeta({ layout: "freelancer" });
 
 const jobStore = useFreelancerJobsStore();
-const { currentJob, isLoading: loading } = storeToRefs(jobStore);
-const trainingsStore = useFreelancerTrainingsStore();
 const appStore = useAppStore();
-
+const trainingsStore = useFreelancerTrainingsStore();
 const route = useRoute();
-onMounted(async () => {
-  await jobStore
-    .fetchJobDetails(route.params.id as string)
-    .then(async (job) => {
-      await trainingsStore.fetchTrainingsForJob(job.slug);
-    });
-});
+
+// Reactive references
+const { currentJob, isLoading: loading } = storeToRefs(jobStore);
 
 const formElement = useTemplateRef("formElement");
 const {
@@ -216,46 +221,64 @@ const {
 });
 
 const showSuccessModal = ref(false);
+const showProfileIncompleteModal = ref(false);
+
+// Fetch job & trainings
+onMounted(async () => {
+  try {
+    loading.value = true;
+    const job = await jobStore.fetchJobDetails(route.params.id as string);
+    await trainingsStore.fetchTrainingsForJob(job.slug);
+  } catch (error) {
+    console.error("Failed to fetch job or trainings", error);
+    appStore.showSnackBar({ type: "error", message: "Failed to load job details." });
+  } finally {
+    loading.value = false;
+  }
+});
+
+// Submit application
 async function submitApplication() {
   formElement.value?.resetValidation();
-  if (currentJob.value?.has_applied) {
-    appStore.showSnackBar({
-      type: "info",
-      message: "You have already applied for this job.",
-    });
-    return;
-  }
 
+  // Submit
   try {
-    if (!currentJob.value) throw new Error("currentJob is not set");
     await jobStore.applyForJob(
-      currentJob.value.slug,
+      currentJob.value!.slug,
       toFormData(applicationForm as Record<string, any>)
     );
+
     showSuccessModal.value = true;
-    setTimeout(() => redirectToDashboard(), 3000);
     resetApplicationErrors();
     formElement.value?.reset();
+
+    setTimeout(() => redirectToDashboard(), 3000);
   } catch (error: any) {
-    console.log("Error while applying to job", error);
-    const applicationBackendErrors = error.response?._data;
-    if (applicationBackendErrors) {
-      setApplicationErrors(applicationBackendErrors);
-      const generalErrorMessage =
-        applicationBackendErrors.detail ||
-        applicationBackendErrors.non_field_errors?.[0] ||
-        "Failed to post job. Please check your inputs.";
-      appStore.showSnackBar({ type: "error", message: generalErrorMessage });
+    console.error("Application error:", error);
+
+    if (error.message === "Not logged in as freelancer") return navigateTo("/login");
+    if (error.message === "Profile incomplete") {
+      showProfileIncompleteModal.value = true;
+      return;
     }
+
+    const backendErrors = error.response?._data;
+    if (backendErrors) setApplicationErrors(backendErrors);
+
+    const message =
+      backendErrors?.detail || backendErrors?.non_field_errors?.[0] || error.message || "Failed to apply";
+    appStore.showSnackBar({ type: "error", message });
   }
 }
 
+// Navigation helpers
 function redirectToDashboard() {
   showSuccessModal.value = false;
-  // this will prevent from double redirection since when the user selects 'Okay' the dialog will close and emit the closed event
-  const path = "/freelancer/dashboard";
-  if (route.path !== path) {
-    navigateTo(path);
-  }
+  if (route.path !== "/freelancer/dashboard") navigateTo("/freelancer/dashboard");
+}
+
+function goToCompleteProfile() {
+  showProfileIncompleteModal.value = false;
+  navigateTo("/freelancer/portfolio");
 }
 </script>
